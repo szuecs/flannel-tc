@@ -1,0 +1,15 @@
+version: "2017-09-20"
+pipeline:
+- id: build
+  type: script
+  commands:
+  - desc: Build and push docker image
+    cmd: |
+      if [[ $CDP_TARGET_BRANCH == master && ! $CDP_PULL_REQUEST_NUMBER ]]; then
+        RELEASE_VERSION=$(git describe --tags --always --dirty)
+        IMAGE=registry-write.opensource.zalan.do/teapot/flannel-tc:${RELEASE_VERSION}
+      else
+        IMAGE=registry-write.opensource.zalan.do/teapot/flannel-tc-test:${CDP_BUILD_VERSION}
+      fi
+      docker build --tag "$IMAGE" .
+      docker push "$IMAGE"
